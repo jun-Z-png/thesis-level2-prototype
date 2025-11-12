@@ -368,9 +368,6 @@ function createClock(title, x, y) {
     let passed12 = false;
     let clock;
 
-    p.preload=function(){
-  clock=p.loadImage("image/clock.png")
-}
 
     p.setup = function() {
       p.frameRate(3)
@@ -391,7 +388,6 @@ function createClock(title, x, y) {
       p.stroke(0);
       p.noFill();
       p.strokeWeight(4);
-      p.image(clock, 85.35);
 
       // Shuffle numbers
       let shuffledAngles = p.shuffle([...angles]);
@@ -539,3 +535,4 @@ function spawnImages(x, y, depth = 0) {
 
 </body>
 </html>
+
