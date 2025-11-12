@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Hacking Unit 1</title>
+  <style>
+    html, body {
+      font-family: "Inter", sans-serif;
+ display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* full viewport height */
+  margin: 0;
+}
+
+
+    .fake-window {
+      position: absolute;
+      width: 350px;
+      height: 200px;
+      background: #fff;
+      border: 1px solid #333;
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    .fake-clock-window{
+        position: absolute;
+      width: 500px;
+      height: 600px;
+      background: #fff;
+      border: 1px solid #333;
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    .title-bar {
+      background: #333;
+      color: #fff;
+      padding: 5px;
+      cursor: move;
+      user-select: none;
+    }
+
+    .sec-bar {
+  display: flex;
+  justify-content: flex-start;
+  gap: 6px;
+  align-items: center;
+  background: #e0e0e0;
+  padding: 4px 8px;
+  font-weight: bold;
+  border-bottom: 1px solid #999;
+}
+.inter-content {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+    .content {
+      font-size: 36px;
+      font-weight: 700;
+      flex: 1;
+      padding: 10px;
+      overflow: auto;
+    }
+    .clock-content {
+      font-size: 36px;
+      font-weight: 700;
+      flex: 1;
+
+      overflow: auto;
+    }
+
+    
+
+    .contentHint {
+      font-size: 20px;
+      flex: 1;
+      padding: 10px;
+      overflow: auto;
+    }
+
+    button {
+      margin-top: 5px;
+      padding: 3px 6px;
+      font-size: 18px;
+       background: none;       /* remove background color */
+  border: none; 
+    }
+
+  </style>
+</head>
+<body>
+<div id="message"></div>
+<img id="centerImage" src="image/unit1.png" >
+
+<script>
+function startImageRepelAnimation() {
+  const centerImg = document.getElementById("centerImage");
+  const img2 = centerImg.cloneNode();
+  document.body.appendChild(img2);
+
+  let distance = 0;
+  const maxDistance = 200;
+  let movingOut = true;
+
+  const imgWidth = centerImg.width;
+  const imgHeight = centerImg.height;
+
+  centerImg.style.position = "absolute";
+  img2.style.position = "absolute";
+
+  function animate() {
+    distance += movingOut ? 1 : -1;
+    if (distance >= maxDistance) movingOut = false;
+    if (distance <= 0) movingOut = true;
+
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    centerImg.style.left = `${centerX - distance / 2- imgWidth/2}px`;
+    centerImg.style.top = `${centerY - imgHeight/2}px`;
+    centerImg.style.opacity=distance/200;
+
+    img2.style.left = `${centerX + distance / 2- imgWidth/2}px`;
+    img2.style.top = `${centerY - imgHeight/2}px`;
+    img2.style.opacity=distance/200;
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+}
+  
+const textSets = [
+  ["DISS", "DIAL", "DEST"], // fake window 2
+  ["OCIA", "OTIA", "OSIA", "LOCA"],
+  ["TION","SION","GION"]  ,
+  ["Losing connect with yourself, you are the closest stranger"]       // fake window 3
+];
+
+document.getElementById("centerImage").addEventListener("click", () => {
+  createFakeWindow("Window 2", textSets[0], 100, 100);
+  createFakeWindow("Window 3", textSets[1], 400, 150);
+  createFakeWindow("Window 4", textSets[2], 300, 250);
+  createFakeWindowHint("Hint", textSets[3], 500, 250);
+  createInputWindow("Password",600,200);
+  createClock("Time Count", 1000,50);
+});
+
+let fakeWindows = [];
+let zIndexCounter = 10; 
+// Create a draggable fake window
+function createFakeWindow(title, texts, x, y) {
+  const win = document.createElement("div");
+  win.className = "fake-window";
+  win.style.left = x + "px";
+  win.style.top = y + "px";
+
+  win.style.zIndex = zIndexCounter;
+
+  // --- bring to front when clicked
+  win.addEventListener("mousedown", () => {
+    zIndexCounter++;
+    win.style.zIndex = zIndexCounter;
+  });
+
+  const titleBar = document.createElement("div");
+  titleBar.className = "title-bar";
+  titleBar.textContent = title;
+
+  const secBar = document.createElement("div");
+  secBar.className = "sec-bar";
+  const refreshBtn = document.createElement("button");
+  refreshBtn.textContent = "↻";
+  refreshBtn.onclick = () => {
+    wordP.textContent = texts[Math.floor(Math.random()*texts.length)];
+  }
+  secBar.appendChild(refreshBtn);
+  const label = document.createElement("span");
+  label.textContent = "http://Unit1.com";
+   secBar.appendChild(label);
+
+  const content = document.createElement("div");
+  content.className = "content";
+  const wordP = document.createElement("p");
+  wordP.textContent = texts[Math.floor(Math.random()*texts.length)];
+  content.appendChild(wordP);
+
+  
+
+  win.appendChild(titleBar);
+  win.appendChild(secBar)
+  win.appendChild(content);
+  document.body.appendChild(win);
+fakeWindows.push(win);
+  makeDraggable(win, titleBar);
+}
+
+function createFakeWindowHint(title, texts, x, y) {
+  const win = document.createElement("div");
+  win.className = "fake-window";
+  win.style.left = x + "px";
+  win.style.top = y + "px";
+
+  win.style.zIndex = zIndexCounter;
+
+  // --- bring to front when clicked
+  win.addEventListener("mousedown", () => {
+    zIndexCounter++;
+    win.style.zIndex = zIndexCounter;
+  });
+
+  const titleBar = document.createElement("div");
+  titleBar.className = "title-bar";
+  titleBar.textContent = title;
+
+  
+  const content = document.createElement("div");
+  content.className = "contentHint";
+  const wordP = document.createElement("p");
+  wordP.textContent = texts[Math.floor(Math.random()*texts.length)];
+  content.appendChild(wordP);
+
+  const content2 = document.createElement("div");
+  content.className = "contentHint";
+  const hint = document.createElement("p");
+  hint.textContent = "Refresh to see possible elements.";
+  content.appendChild(hint);
+
+  win.appendChild(titleBar);
+
+  win.appendChild(content);
+  document.body.appendChild(win);
+fakeWindows.push(win);
+  makeDraggable(win, titleBar);
+}
+
+function createInputWindow(title, x, y) {
+  const win = document.createElement("div");
+  win.className = "fake-window";
+  win.style.left = x + "px";
+  win.style.top = y + "px";
+  win.style.zIndex = zIndexCounter;
+
+  win.addEventListener("mousedown", () => {
+    zIndexCounter++;
+    win.style.zIndex = zIndexCounter;
+  });
+
+  // Title bar
+  const titleBar = document.createElement("div");
+  titleBar.className = "title-bar";
+  titleBar.textContent = title;
+
+  // Content
+  const content = document.createElement("div");
+  content.className = "content";
+  const input = document.createElement("input");
+  input.placeholder = "Type here";
+  const submitBtn = document.createElement("button");
+  submitBtn.textContent = "Send";
+
+  const feedback = document.createElement("p");
+
+  submitBtn.onclick = () => {
+    if (input.value.trim().toLowerCase() === "dissociation") { // correct answer
+      feedback.textContent = "You hacked Unit 1!";
+      
+    // remove all windows after 5 seconds
+    setTimeout(() => {
+      fakeWindows.forEach(w => w.remove());
+      fakeWindows = [];
+      startImageRepelAnimation();
+    }, 3000); // 5000 milliseconds = 5 seconds
+    spawnImages(window.innerWidth / 2, window.innerHeight / 2)
+if (clockSketch) {
+    clockSketch.noLoop();
+    clockSketch.remove();
+    clockSketch = null;
+  }
+  } else {
+    feedback.textContent = "❌ Try again.";
+  }
+  };
+
+  content.appendChild(input);
+  content.appendChild(submitBtn);
+  content.appendChild(feedback);
+
+  // Assemble
+  win.appendChild(titleBar);
+  win.appendChild(content);
+  document.body.appendChild(win);
+fakeWindows.push(win);
+  fakeWindows.push(win);
+  makeDraggable(win, titleBar);
+}
+let clockSketch;
+function createClock(title, x, y) {
+  const win = document.createElement("div");
+  win.className = "fake-clock-window";
+  win.style.left = x + "px";
+  win.style.top = y + "px";
+  win.style.zIndex = zIndexCounter;
+
+  // Bring to front when clicked
+  win.addEventListener("mousedown", () => {
+    zIndexCounter++;
+    win.style.zIndex = zIndexCounter;
+  });
+
+  // Title bar
+  const titleBar = document.createElement("div");
+  titleBar.className = "title-bar";
+  titleBar.textContent = title;
+
+
+  // Content area
+  const content = document.createElement("div");
+  content.className = "clock-content";
+  content.style.position = "relative";
+  content.style.width = "500px";
+  content.style.height = "500px";
+
+  // Canvas container
+  const canvasContainer = document.createElement("div");
+  canvasContainer.id = "canvas-" + fakeWindows.length;
+  canvasContainer.style.width = "100%";
+  canvasContainer.style.height = "100%";
+  content.appendChild(canvasContainer);
+
+  win.appendChild(titleBar);
+ 
+  win.appendChild(content);
+  document.body.appendChild(win);
+
+  fakeWindows.push(win);
+
+  // Make draggable
+  makeDraggable(win, titleBar);
+
+  // Initialize p5 sketch for this window
+  clockSketch=new p5((p) => {
+    let numbers = [
+      { value: 12 }, { value: 1 }, { value: 2 }, { value: 3 },
+      { value: 4 }, { value: 5 }, { value: 6 }, { value: 7 },
+      { value: 8 }, { value: 9 }, { value: 10 }, { value: 11 }
+    ];
+    let centerX, centerY, radius;
+    let angles = [];
+    let angleStep = 360 / numbers.length;
+    let angleOffset = -90;
+    let pointerAngle = 0;
+    let minuteCount = 0;
+    let passed12 = false;
+    let clock;
+
+    p.preload=function(){
+  clock=p.loadImage("image/clock.png")
+}
+
+    p.setup = function() {
+      p.frameRate(3)
+      let canvas = p.createCanvas(500, 550);
+      canvas.parent(canvasContainer.id);
+      centerX = p.width / 2;
+      centerY = p.height / 2;
+      radius = 200;
+      p.angleMode(p.DEGREES);
+      p.textAlign(p.CENTER, p.CENTER);
+      for (let i = 0; i < numbers.length; i++) angles.push(angleOffset + i * angleStep);
+    };
+
+    p.draw = function() {
+      p.background(255);
+
+      // Draw clock circle
+      p.stroke(0);
+      p.noFill();
+      p.strokeWeight(4);
+      p.image(clock, 85.35);
+
+      // Shuffle numbers
+      let shuffledAngles = p.shuffle([...angles]);
+      let angle12 = 0;
+
+      for (let i = 0; i < numbers.length; i++) {
+        let ang = shuffledAngles[i];
+        let x = centerX + p.cos(ang) * radius;
+        let y = centerY + p.sin(ang) * radius;
+        numbers[i].x = x;
+        numbers[i].y = y;
+        numbers[i].angle = ang;
+
+        if (numbers[i].value === 12) angle12 = ang;
+
+        p.textSize(p.random(24, 48));
+        p.noStroke();
+        p.fill(0);
+        p.text(numbers[i].value, x, y);
+      }
+
+      // Draw pointer
+      p.push();
+      p.translate(centerX, centerY);
+      p.rotate(pointerAngle);
+      p.stroke(255, 0, 0);
+      p.strokeWeight(4);
+      p.line(0, 0, 0, -radius + 30);
+      p.pop();
+
+      // Check pointer vs 12
+      let pointerDeg = (pointerAngle % 360 + 360) % 360;
+      if (p.abs(pointerDeg - angle12) < 15) {
+        if (!passed12) {
+          minuteCount++;
+          passed12 = true;
+
+          // If minute reaches 10, close all windows and reset
+          if (minuteCount >= 10) {
+            for (let w of fakeWindows) {
+              w.remove();
+            }
+            fakeWindows = [];
+            const msgDiv = document.getElementById("message");
+  if (msgDiv) {
+    msgDiv.textContent = "Hack failed. Try again later.   ";
+  }
+          }
+        }
+      } else passed12 = false;
+
+      pointerAngle += 0.5;
+
+      // Display minute count
+      p.noStroke();
+      p.fill(0);
+      p.textSize(24);
+      p.text("Time left: " + (7-minuteCount)+" mins", centerX, p.height - 30);
+    };
+  });
+}
+
+
+// Draggable helper
+function makeDraggable(el, handle) {
+  let offsetX = 0, offsetY = 0, isDown = false;
+
+  handle.addEventListener("mousedown", e => {
+    isDown = true;
+    offsetX = e.clientX - el.offsetLeft;
+    offsetY = e.clientY - el.offsetTop;
+    el.style.zIndex = 100; // bring to front
+  });
+
+  document.addEventListener("mouseup", () => isDown = false);
+
+  document.addEventListener("mousemove", e => {
+    if (!isDown) return;
+    el.style.left = (e.clientX - offsetX) + "px";
+    el.style.top = (e.clientY - offsetY) + "px";
+  });
+}
+
+const images = [];
+const maxPerSpot = 2;
+const imageSources = ["image/pattern1.png", "image/pattern2.png", "image/pattern3.png"];
+const step = 50;
+const maxImages = 300;
+
+// keep track of how many images per spot
+const spots = {};
+
+function spawnImages(x, y, depth = 0) {
+  if (images.length >= maxImages) return;
+
+  // generate two new images from each one
+  for (let i = 0; i < 2; i++) {
+    const dir = Math.floor(Math.random() * 4);
+    let newX = x;
+    let newY = y;
+
+    if (dir === 0) {
+      newY -= step;
+       newX-=step;  }     // top
+    else if (dir === 1){
+      newY += step; 
+      newX += step; 
+    }  // bottom
+    else if (dir === 2){
+      newX -= step; 
+      newY += step; 
+    }  // left
+    else {
+      newX += step;    
+      newY -= step;   
+                 }             // right
+
+    const key = `${newX}_${newY}`;
+
+    // check if already crowded
+    if (!spots[key]) spots[key] = 0;
+    if (spots[key] >= maxPerSpot) continue;
+
+    spots[key]++;
+    const img = document.createElement("img");
+    deg=[0,90,180,270]
+    img.src = imageSources[Math.floor(Math.random() * imageSources.length)];
+    img.style.position = "absolute";
+    img.style.left = `${newX}px`;
+    img.style.top = `${newY}px`;
+    img.style.width = "50px";
+    img.style.transition = "rotate 1s ease-in-out";
+    img.style.zIndex=-1000;
+    img.style.rotate = deg[Math.floor(Math.random() * 4)]+"deg";
+
+    document.body.appendChild(img);
+    images.push(img);
+
+    // recursively spawn from this image after a short delay
+    setTimeout(() => spawnImages(newX, newY, depth + 1), 500);
+  }
+}
+
+</script>
+
+</body>
+</html>
