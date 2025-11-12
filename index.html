@@ -421,7 +421,7 @@ function createClock(title, x, y) {
 
       // Check pointer vs 12
       let pointerDeg = (pointerAngle % 360 + 360) % 360;
-      if (p.abs(pointerDeg - angle12) < 15) {
+      if (p.abs(pointerDeg - angle12) < 5) {
         if (!passed12) {
           minuteCount++;
           passed12 = true;
@@ -536,6 +536,7 @@ function spawnImages(x, y, depth = 0) {
 
 </body>
 </html>
+
 
 
 
